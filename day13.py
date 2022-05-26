@@ -60,13 +60,20 @@ def fold_on_y(grid, fold_line):
     for r in range(below_line, num_lines):
         for c in range(0, line_len):
             if grid[r][c] == '#':
-                print("Found point")
                 grid[above_line][c] = grid[r][c]
         above_line -= 1
 
     grid = grid[:fold_line]
 
     return grid
+
+def count_dots(grid) -> int:
+    num_dots = 0
+    for r in grid:
+        for c in r:
+            if c == '#':
+                num_dots += 1
+    return num_dots
 
 def fold_on_x(grid, fold_line):
     line_len = len(grid)
@@ -87,9 +94,15 @@ def fold_on_x(grid, fold_line):
     for idx in range(num_lines):
         grid[idx] = grid[idx][:fold_line]
     return grid
+
+
 def main():
-    fold_re = re.compile("fold along (x|y)=([0-9])")
+    fold_re = re.compile("fold along (x|y)=([0-9]*)")
+
+    with open("transparency.txt", "r") as fp:
+        data = fp.read()
     data_lines = data.split(os.linesep)
+
     points: List[Point] = list()
     folds = list()
     for line in data_lines:
@@ -105,15 +118,23 @@ def main():
     max_x = max(points, key=lambda p: p.x)
     max_y = max(points, key=lambda p: p.y)
 
-    grid = [['.' for _ in range(max_x.x + 1)] for _ in range(max_y.y + 1)]
+    grid = [[' ' for _ in range(max_x.x + 1)] for _ in range(max_y.y + 1)]
     fill_grid(grid, points)
     print(f"Max X {max_x.x} Max Y {max_y.y}")
-    print_grid(grid)
-    grid = fold_on_y(grid, folds[0][1])
-    print_grid(grid)
-    grid = fold_on_x(grid, folds[1][1])
-    print_grid(grid)
+    for fold in folds:
+        if fold[0] == 'y':
+        #print_grid(grid)
+            print(f"Folding on y : {fold[1]}")
+            grid = fold_on_y(grid, fold[1])
+        else:
+            print(f"Folding on x : {fold[1]}")
+            grid = fold_on_x(grid, fold[1])
 
+    print_grid(grid)
+    #grid = fold_on_x(grid, folds[1][1])
+    #print_grid(grid)
+
+    print(f"Number of dots: {count_dots(grid)}")
 
 
 if __name__ == '__main__':
