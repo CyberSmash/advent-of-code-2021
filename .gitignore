@@ -1,2 +1,4 @@
 venv/*
 .idea/
+dijkstra/cmake-build*/**
+day16/cmake-build*/**
